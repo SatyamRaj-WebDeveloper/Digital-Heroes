@@ -11,13 +11,14 @@ export const AuthProvider = ({ children }) => {
 
   const syncUserProfileState = async () => {
     const token = localStorage.getItem('token');
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
     if (!token) {
       setLoading(false);
       return;
     }
     try {
       
-      const res = await fetch('http://localhost:5000/api/auth/me', {
+      const res = await fetch(`${baseUrl}/auth/me`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -38,7 +39,8 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const res = await fetch('http://localhost:5000/api/auth/login', {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+    const res = await fetch(`${baseUrl}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
