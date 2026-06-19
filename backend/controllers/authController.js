@@ -2,6 +2,7 @@ import User from '../models/User.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import Stripe from 'stripe';
+import { dispatchWelcomeEmail } from '../config/mailer.js';
 
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -32,6 +33,13 @@ export const registerUser = async (req, res) => {
         charityPercentage: 10 
       }
     });
+
+    // FIX: Dispatch System Welcome Notification (PRD Trigger)
+    try {
+      await dispatchWelcomeEmail(user.email, user.name);
+    } catch (emailErr) {
+      console.error("Non-blocking welcome email dispatch failure:", emailErr.message);
+    }
 
     res.status(201).json({
       success: true,

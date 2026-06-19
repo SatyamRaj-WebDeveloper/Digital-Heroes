@@ -77,7 +77,6 @@ export default function UserDashboard() {
           }
         ]);
       } else {
-        // Fallback fallback if collection context has not been initialized yet
         setWinningHistory([
           {
             id: 'mock-win-101',
@@ -95,9 +94,16 @@ export default function UserDashboard() {
     }
   };
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+ useEffect(() => {
+  if (!user) {
+    console.log("Awaiting profile session state serialization...");
+    return; 
+  }
+
+  // 2. Once the user profile is verified and active, fetch the live draw metrics
+  console.log("Profile context synchronized. Compiling active draw vectors...");
+  fetchDashboardData();
+}, [user]); // 👈 CRITICAL: Adding 'user' as a dependency makes this run as soon as auth data arrives!
 
   const handleAddScoreSubmit = async (e) => {
     e.preventDefault();
@@ -133,17 +139,36 @@ export default function UserDashboard() {
     }
   };
 
-  const handleMockProofUpload = (e) => {
+  const handleMockProofUpload = async (e) => {
     e.preventDefault();
     if (!mockUrlInput.trim()) return;
 
-    setUploadSuccess('Verification screenshot payload successfully dispatched to administrative evaluation grid.');
-    setMockUrlInput('');
+    // Grab the current active winning entry context from your array hook
+    const targetTicket = winningHistory[0];
+    if (!targetTicket) return;
 
-    setWinningHistory(prev => prev.map(win => ({
-      ...win,
-      verificationStatus: 'Pending'
-    })));
+    setUploadSuccess('');
+
+    try {
+      // FIX: Dispatch your proof payload directly to our newly mapped server route path
+      await apiClient('/draws/submit-proof', {
+        method: 'POST',
+        body: {
+          drawId: targetTicket.id,
+          winnerId: targetTicket.id, 
+          proofImageUrl: mockUrlInput.trim()
+        }
+      });
+
+      setUploadSuccess('Verification screenshot payload successfully saved to database matrix!');
+      setMockUrlInput('');
+      
+      // Refresh user view tracking rows dynamically
+      fetchDashboardData();
+    } catch (err) {
+      console.error("Outbound proof payload shipment failure:", err.message);
+      setUploadSuccess(`Submission failure: ${err.message}`);
+    }
   };
 
   if (loading) {

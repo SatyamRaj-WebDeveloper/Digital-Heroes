@@ -39,18 +39,28 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    
     const res = await fetch(`${baseUrl}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     });
+    
     const data = await res.json();
     if (!res.ok) throw new Error(data.message);
 
+
     localStorage.setItem('token', data.token);
     setUser(data.user); 
-    router.push('/dashboard');
+
+    if (data.user && data.user.role === 'Administrator') {
+      console.log("Admin security clearance detected. Routing to controller matrix...");
+      router.push('/admin');
+    } else {
+      console.log("Standard subscriber authenticated. Routing to analytics layout...");
+      router.push('/dashboard');
+    }
   };
 
   const logout = () => {
