@@ -20,8 +20,8 @@ export const registerUser = async (req, res) => {
     const userExists = await User.findOne({ email });
     if (userExists) return res.status(400).json({ success: false, message: 'Email already registered' });
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // Performance Optimization: Pass salt rounds integer directly to clean up the thread
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       name,
@@ -34,13 +34,12 @@ export const registerUser = async (req, res) => {
       }
     });
 
-    // FIX: Dispatch System Welcome Notification (PRD Trigger)
-    try {
-      await dispatchWelcomeEmail(user.email, user.name);
-    } catch (emailErr) {
+   
+    dispatchWelcomeEmail(user.email, user.name).catch((emailErr) => {
       console.error("Non-blocking welcome email dispatch failure:", emailErr.message);
-    }
+    });
 
+    // Instantly ship this payload down to Next.js
     res.status(201).json({
       success: true,
       token: generateToken(user._id),

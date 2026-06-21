@@ -21,11 +21,16 @@ export default function Register() {
         method: 'POST',
         body: formData,
       });
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      router.push('/onboarding/subscribe'); 
+      
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        router.push('/onboarding/subscribe'); 
+      } else {
+        setError('Server authentication format anomaly.');
+      }
     } catch (err) {
-      setError(err.message);
+      setError(err.message || 'Registration structural failure.');
     } finally {
       setLoading(false);
     }
