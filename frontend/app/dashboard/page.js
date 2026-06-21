@@ -150,12 +150,12 @@ export default function UserDashboard() {
     setUploadSuccess('');
 
     try {
-      // FIX: Dispatch your proof payload directly to our newly mapped server route path
+      // FIX: Correctly maps distinct Parent Draw ID alongside the unique Ticket ID
       await apiClient('/draws/submit-proof', {
         method: 'POST',
         body: {
-          drawId: targetTicket.id,
-          winnerId: targetTicket.id, 
+          drawId: targetTicket.drawId, // ⚡ FIX: Use targetTicket.drawId here!
+          winnerId: targetTicket.id,   // Keep the unique subdocument ticket ID here
           proofImageUrl: mockUrlInput.trim()
         }
       });
@@ -164,7 +164,7 @@ export default function UserDashboard() {
       setMockUrlInput('');
       
       // Refresh user view tracking rows dynamically
-      fetchDashboardData();
+      fetchDashboardData(true); // Silent background fetch update reload
     } catch (err) {
       console.error("Outbound proof payload shipment failure:", err.message);
       setUploadSuccess(`Submission failure: ${err.message}`);

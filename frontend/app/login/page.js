@@ -29,7 +29,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center px-4 bg-slate-950">
       <div className="max-w-md w-full bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-xl">
         <h2 className="text-2xl font-bold text-white text-center mb-2">Welcome Back</h2>
-        <p className="text-xs text-slate-400 text-center mb-6">Sign in to access your dashboard and impact metrics[cite: 1].</p>
+        <p className="text-xs text-slate-400 text-center mb-6">Sign in to access your dashboard and impact metrics.</p>
 
         {error && (
           <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs p-3 rounded-lg mb-4 text-center">
