@@ -69,7 +69,7 @@ export default function Login() {
         </form>
 
         <p className="text-xs text-slate-500 text-center mt-6">
-          New to the platform? <Link href="/register" className="text-amber-500 hover:underline">Create an Account</Link>[cite: 1]
+          New to the platform? <Link href="/register" className="text-amber-500 hover:underline">Create an Account</Link>
         </p>
       </div>
     </div>
